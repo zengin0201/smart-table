@@ -1,11 +1,13 @@
-import {rules, createComparison} from "../lib/compare.js";
+export function initSearching() {
+    return (vseDannie, pamyat, sobitie) => {
+        const iskomiyTekst = pamyat.search ? pamyat.search.toLowerCase() : '';
+        
+        if (!iskomiyTekst) return vseDannie;
 
-
-export function initSearching(searchField) {
-    // @todo: #5.1 — настроить компаратор
-
-    return (data, state, action) => {
-        // @todo: #5.2 — применить компаратор
-        return data;
+        return vseDannie.filter(stroka => {
+            const prodavec = stroka.seller ? stroka.seller.toLowerCase() : '';
+            const pokupatel = stroka.customer ? stroka.customer.toLowerCase() : '';
+            return prodavec.includes(iskomiyTekst) || pokupatel.includes(iskomiyTekst);
+        });
     }
 }
