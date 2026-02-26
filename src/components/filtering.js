@@ -1,14 +1,32 @@
-import {createComparison, defaultRules} from "../lib/compare.js";
+export function initFiltering(vipadashki, spiskiImen) {
+    const sellerSelect = vipadashki.searchBySeller;
+    if (sellerSelect && spiskiImen.sellers) {
+        Object.values(spiskiImen.sellers).forEach(imya => {
+            const option = document.createElement('option');
+            option.value = imya;
+            option.textContent = imya;
+            sellerSelect.appendChild(option);
+        });
+    }
 
-// @todo: #4.3 — настроить компаратор
+    
+    return (danniePoslePoiska, pamyat, sobitie) => {
+        return danniePoslePoiska.filter(stroka => {
+            if (pamyat.seller && stroka.seller !== pamyat.seller) return false;
+            if (pamyat.customer) {
+                const cust = stroka.customer ? stroka.customer.toLowerCase() : '';
+                if (!cust.includes(pamyat.customer.toLowerCase())) return false;
+            }
+            if (pamyat.date) {
+                const dt = stroka.date || '';
+                if (!dt.includes(pamyat.date)) return false;
+            }
+            const limitOt = Number(pamyat.totalFrom) || -Infinity;
+            const limitDo = Number(pamyat.totalTo) || Infinity;
+            
+            if (stroka.total < limitOt || stroka.total > limitDo) return false;
 
-export function initFiltering(elements, indexes) {
-    // @todo: #4.1 — заполнить выпадающие списки опциями
-
-    return (data, state, action) => {
-        // @todo: #4.2 — обработать очистку поля
-
-        // @todo: #4.5 — отфильтровать данные используя компаратор
-        return data;
+            return true;
+        });
     }
 }
