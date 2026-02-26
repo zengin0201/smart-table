@@ -1,18 +1,25 @@
-import {sortCollection, sortMap} from "../lib/sort.js";
+import {sortCollection} from "../lib/sort.js"; 
 
-export function initSorting(columns) {
-    return (data, state, action) => {
-        let field = null;
-        let order = null;
+export function initSorting(zagolovkiKolonok) {
+    return (danniePosleFiltra, pamyat, sobitie) => {
+        
+        if (sobitie && sobitie.name === 'sort') {
+            const nazhatayaKolonka = sobitie.value;
 
-        if (action && action.name === 'sort') {
-            // @todo: #3.1 — запомнить выбранный режим сортировки
+            if (pamyat.sort === nazhatayaKolonka) {
+                pamyat.order = pamyat.order === "asc" ? "desc" : "asc";
+            } else {
+                pamyat.sort = nazhatayaKolonka;
+                pamyat.order = "asc";
+            }
 
-            // @todo: #3.2 — сбросить сортировки остальных колонок
-        } else {
-            // @todo: #3.3 — получить выбранный режим сортировки
+            Object.keys(zagolovkiKolonok).forEach(imyaKolonki => {
+                const kolonka = zagolovkiKolonok[imyaKolonki];
+                const napravlenie = (imyaKolonki === pamyat.sort) ? pamyat.order : null;
+                if (kolonka) kolonka.dataset.value = napravlenie || "none";
+            });
         }
 
-        return sortCollection(data, field, order);
+        return sortCollection(danniePosleFiltra, pamyat.sort, pamyat.order);
     }
 }
