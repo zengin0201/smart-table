@@ -2,11 +2,10 @@ export function initFiltering(elements) {
     const updateIndexes = (elements, indexes) => {
         Object.keys(indexes).forEach((elementName) => {
             if (elements[elementName]) {
-                elements[elementName].innerHTML = '<option value="">—</option>';
-                elements[elementName].append(...Object.entries(indexes[elementName]).map(([id, name]) => {
+                elements[elementName].append(...Object.values(indexes[elementName]).map(name => {
                     const el = document.createElement('option');
                     el.textContent = name;
-                    el.value = id;
+                    el.value = name;
                     return el;
                 }));
             }
@@ -16,23 +15,18 @@ export function initFiltering(elements) {
     const applyFiltering = (query, state, action) => {
         if (action && action.name === 'clear') {
             const fieldName = action.dataset.field;
-            const inputNames = {
-                'date': 'searchByDate',
-                'customer': 'searchByCustomer'
-            };
-            const targetName = inputNames[fieldName];
-            if (elements[targetName]) {
-                elements[targetName].value = '';
-                state[targetName] = '';
-            }
+            Object.values(elements).forEach(el => {
+                if (el && el.name === fieldName) {
+                    el.value = '';
+                }
+            });
         }
 
         const filter = {};
         Object.keys(elements).forEach(key => {
             if (elements[key]) {
-                const element = elements[key];
-                if ((element.tagName === 'INPUT' || element.tagName === 'SELECT') && element.value) {
-                    filter[`filter[${element.name}]`] = element.value;
+                if (['INPUT', 'SELECT'].includes(elements[key].tagName) && elements[key].value) {
+                    filter[`filter[${elements[key].name}]`] = elements[key].value;
                 }
             }
         });
