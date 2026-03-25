@@ -1,30 +1,26 @@
-import {makeIndex} from "./lib/utils.js";
-
-export function initData(sourceData) {
+export function initData() {
     const BASE_URL = 'https://webinars.webdev.education-services.ru/sp7-api';
-    
-    let sellers;
-    let customers;
-    let lastResult;
-    let lastQuery;
+    let sellers = null;
+    let customers = null;
+    let lastResult = null;
+    let lastQuery = null;
 
     const mapRecords = (data) => data.map(item => ({
         id: item.receipt_id,
         date: item.date,
-        seller: sellers[item.seller_id] || 'Unknown',
-        customer: customers[item.customer_id] || 'Unknown',
+        seller: sellers ? (sellers[item.seller_id] || item.seller_id) : item.seller_id,
+        customer: customers ? (customers[item.customer_id] || item.customer_id) : item.customer_id,
         total: item.total_amount
     }));
 
     const getIndexes = async () => {
         if (!sellers || !customers) {
-            const [sellersData, customersData] = await Promise.all([
+            const [sData, cData] = await Promise.all([
                 fetch(`${BASE_URL}/sellers`).then(res => res.json()),
                 fetch(`${BASE_URL}/customers`).then(res => res.json()),
             ]);
-            
-            sellers = makeIndex(sellersData, 'id', v => `${v.first_name} ${v.last_name}`);
-            customers = makeIndex(customersData, 'id', v => `${v.first_name} ${v.last_name}`);
+            sellers = sData;
+            customers = cData;
         }
         return { sellers, customers };
     };
@@ -36,9 +32,10 @@ export function initData(sourceData) {
                 qs.append(key, value);
             }
         });
-
+        
         const nextQuery = qs.toString();
-        if (lastQuery === nextQuery && !isUpdated) {
+
+        if (lastQuery === nextQuery && !isUpdated && lastResult) {
             return lastResult;
         }
 
