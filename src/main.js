@@ -9,30 +9,43 @@ import {initSorting} from "./components/sorting.js";
 import {initFiltering} from "./components/filtering.js";
 import {initPagination} from "./components/pagination.js";
 
-const {data, ...indexes} = initData(sourceData);
-
-
+const api = initData(sourceData);
 const memoryState = { page: 1, sort: null, order: null };
+let runFilter;
 
 function collectState() {
-    const state = processFormData(new FormData(sampleTable.container));
-    return { ...state };
+    return processFormData(new FormData(sampleTable.container));
 }
 
-function render(action) {
+async function render(action) {
     let state = { ...memoryState, ...collectState() }; 
-    let result = [...data]; 
-    result = runSearch(result, state, action);
-    result = runFilter(result, state, action);
-    result = runSort(result, state, action);
-    result = runPages(result, state, action);
+    
+    const pg = runPages.applyPagination(state, action);
+    
+    let query = {
+        page: pg.page,
+        limit: state.rowsPerPage || 10,
+        search: state.search,
+        sort: state.sort,
+        order: state.order,
+        seller: state.seller,
+        customer: state.customer,
+        date: state.date,
+        totalFrom: state.totalFrom,
+        totalTo: state.totalTo
+    };
+
+    const { total, items } = await api.getRecords(query);
+    
+    runPages.updatePagination(total, state);
+    runSort(state, action);
+
     memoryState.page = state.page;
     memoryState.sort = state.sort;
     memoryState.order = state.order;
 
-    sampleTable.render(result);
+    sampleTable.render(items);
 }
-
 
 const sampleTable = initTable({
     tableTemplate: 'table',
@@ -41,14 +54,17 @@ const sampleTable = initTable({
     after: ["pagination"]
 }, render);
 
-
 const runSearch = initSearching();
-const runFilter = initFiltering(sampleTable.filter.elements, indexes);
 const runSort = initSorting(sampleTable.header.elements);
 const runPages = initPagination(sampleTable.pagination.elements);
 
 const appRoot = document.querySelector('#app');
 appRoot.appendChild(sampleTable.container);
 
+async function init() {
+    const indexes = await api.getIndexes();
+    runFilter = initFiltering(sampleTable.filter.elements, indexes);
+    await render();
+}
 
-render();
+init();
