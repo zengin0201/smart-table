@@ -1,21 +1,25 @@
-export function initSorting(headers) {
+export function initSorting(columns) {
     return (query, state, action) => {
-        let field = state.sort;
-        let order = state.order || 'none';
-
         if (action && action.name === 'sort') {
-            field = action.dataset.field;
-            order = (state.sort === field && state.order === 'asc') ? 'desc' : 'asc';
+            const clickedColumn = action.dataset.field;
+
+            if (state.sort === clickedColumn) {
+                state.order = state.order === "asc" ? "desc" : "asc";
+            } else {
+                state.sort = clickedColumn;
+                state.order = "asc";
+            }
+
+            Object.keys(columns).forEach(columnName => {
+                const col = columns[columnName];
+                if (col) {
+                    const direction = (col.dataset.field === state.sort) ? state.order : "none";
+                    col.dataset.value = direction;
+                }
+            });
         }
 
-        Object.values(headers).forEach(btn => {
-            if (btn.dataset && btn.dataset.field) {
-                btn.dataset.value = (btn.dataset.field === field) ? order : 'none';
-            }
-        });
-
-        const sort = (field && order !== 'none') ? `${field}:${order}` : null;
-
+        const sort = (state.sort && state.order !== 'none') ? `${state.sort}:${state.order}` : null;
         return sort ? Object.assign({}, query, { sort }) : query;
-    };
+    }
 }
