@@ -1,7 +1,7 @@
-export function initSearching(searchField = 'search') {
-    return (query, state, action) => {
-        return state[searchField] ? Object.assign({}, query, {
-            search: state[searchField]
+export function initSearching() {
+    return (query, state) => {
+        return state.search ? Object.assign({}, query, {
+            search: state.search
         }) : query;
-    };
+    }
 }
