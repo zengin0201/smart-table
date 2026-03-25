@@ -1,7 +1,7 @@
-import {cloneTemplate} from "../lib/utils.js";
+import { cloneTemplate } from "../lib/utils.js";
 
 export function initTable(settings, onAction) {
-    const {tableTemplate, rowTemplate, before, after} = settings;
+    const { tableTemplate, rowTemplate, before, after } = settings;
     const root = cloneTemplate(tableTemplate);
     
     [...before].reverse().forEach(key => {
@@ -14,28 +14,36 @@ export function initTable(settings, onAction) {
         root.container.append(root[key].container);
     });
 
-    root.container.addEventListener("change", () => onAction());
-    root.container.addEventListener("reset", () => {
-        setTimeout(() => onAction(), 0);
-    });
     root.container.addEventListener("submit", (e) => {
         e.preventDefault();
         onAction(e.submitter);
     });
 
+    root.container.addEventListener("reset", (e) => {
+        e.preventDefault();
+        const form = e.target.closest('form');
+        form.reset();
+        onAction(null);
+    });
+
+    root.container.addEventListener("change", (e) => {
+        if (e.target.name === 'rowsPerPage' || e.target.name === 'page' || e.target.name === 'seller') {
+            onAction(e.target);
+        }
+    });
+
     const render = (data) => {
-        const nextRows = data.map(item => {
-            const row = cloneTemplate(rowTemplate);
-            Object.keys(item).forEach(key => {
-                if (row.elements[key]) {
-                    row.elements[key].textContent = item[key];
-                }
+        if (root.elements.rows) {
+            root.elements.rows.innerHTML = '';
+            const rows = data.map(item => {
+                const row = cloneTemplate(rowTemplate);
+                Object.keys(item).forEach(key => {
+                    if (row.elements[key]) row.elements[key].textContent = item[key];
+                });
+                return row.container;
             });
-            return row.container;
-        });
-        
-        root.elements.body.innerHTML = '';
-        root.elements.body.append(...nextRows);
+            root.elements.rows.append(...rows);
+        }
     };
 
     return { ...root, render };
