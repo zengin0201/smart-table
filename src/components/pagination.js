@@ -1,64 +1,60 @@
 import { getPages } from "../lib/utils.js";
 
 export function initPagination(elements) {
-    const applyPagination = (state, action) => {
-        if (!state.page) state.page = 1;
-        const limit = Number(state.rowsPerPage) || 10;
+    let pageCount = 1;
 
-        if (action && action.name) {
-            if (action.name === 'first') state.page = 1;
-            if (action.name === 'prev' && state.page > 1) state.page -= 1;
-            if (action.name === 'next' && state.page < state.maxPage) state.page += 1;
-            if (action.name === 'last') state.page = state.maxPage;
-            if (action.name === 'page') state.page = Number(action.value);
+    const applyPagination = (query, state, action) => {
+        const limit = Number(state.rowsPerPage) || 10;
+        let page = Number(state.page) || 1;
+
+        if (action) {
+            if (action.name === 'page') page = Number(action.value);
+            if (action.name === 'prev') page = Math.max(1, page - 1);
+            if (action.name === 'next') page = Math.min(pageCount, page + 1);
+            if (action.name === 'first') page = 1;
+            if (action.name === 'last') page = pageCount;
         }
 
-        return {
-            page: state.page,
-            limit: limit
-        };
+        return Object.assign({}, query, {
+            limit,
+            page
+        });
     };
 
-    const updatePagination = (total, state) => {
-        const limit = Number(state.rowsPerPage) || 10;
-        const maxPage = Math.ceil(total / limit) || 1;
-        state.maxPage = maxPage;
+    const updatePagination = (total, { page, limit }) => {
+        pageCount = Math.ceil(total / limit) || 1;
+        const currentPage = Math.min(page, pageCount);
 
-        if (state.page > maxPage) state.page = maxPage;
-
-        const from = (state.page - 1) * limit + 1;
-        const to = Math.min(state.page * limit, total);
-
-        if (elements.fromRow) elements.fromRow.textContent = total === 0 ? 0 : from;
-        if (elements.toRow) elements.toRow.textContent = to;
         if (elements.totalRows) elements.totalRows.textContent = total;
+        if (elements.fromRow) elements.fromRow.textContent = total > 0 ? (currentPage - 1) * limit + 1 : 0;
+        if (elements.toRow) elements.toRow.textContent = Math.min(currentPage * limit, total);
 
         if (elements.pages) {
-            const container = elements.pages;
-            container.innerHTML = ''; 
-            const pagesArray = getPages(state.page, maxPage, 5); 
-            
-            pagesArray.forEach(pageNum => {
+            elements.pages.innerHTML = '';
+            getPages(currentPage, pageCount, 5).forEach(p => {
                 const label = document.createElement('label');
                 label.className = 'pagination-button';
-                if (pageNum === state.page) label.classList.add('active'); 
+                if (p === currentPage) label.classList.add('active');
                 
                 const input = document.createElement('input');
                 input.type = 'radio';
                 input.name = 'page';
-                input.value = pageNum;
-                input.style.display = 'none'; 
-                if (pageNum === state.page) input.checked = true;
+                input.value = p;
+                if (p === currentPage) input.checked = true;
                 
                 const span = document.createElement('span');
-                span.textContent = pageNum;
+                span.textContent = p;
                 
-                label.appendChild(input);
-                label.appendChild(span);
-                container.appendChild(label);
+                label.append(input, span);
+                elements.pages.appendChild(label);
             });
         }
+
+        return { page: currentPage, maxPage: pageCount };
     };
 
-    return { applyPagination, updatePagination };
+    return {
+        updatePagination,
+        applyPagination
+    };
 }
