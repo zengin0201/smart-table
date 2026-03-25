@@ -1,51 +1,54 @@
 import { getPages } from "../lib/utils.js";
 
-export function initPagination(elementiUpravleniya) {
-    return (otseyannieDannie, pamyat, sobitie) => {
-        if (!pamyat.page) pamyat.page = 1;
-        
-        const vsegoStrok = otseyannieDannie.length;
-        const skolkoPokazivat = Number(pamyat.rowsPerPage) || 10;
-        const maksimalnayaStranica = Math.ceil(vsegoStrok / skolkoPokazivat) || 1;
+export function initPagination(elements) {
+    const applyPagination = (state, action) => {
+        if (!state.page) state.page = 1;
+        const limit = Number(state.rowsPerPage) || 10;
 
-        // Обработка кликов
-        if (sobitie && sobitie.name) {
-            if (sobitie.name === 'first') pamyat.page = 1;
-            if (sobitie.name === 'prev' && pamyat.page > 1) pamyat.page -= 1;
-            if (sobitie.name === 'next' && pamyat.page < maksimalnayaStranica) pamyat.page += 1;
-            if (sobitie.name === 'last') pamyat.page = maksimalnayaStranica;
-            if (sobitie.name === 'page') pamyat.page = Number(sobitie.value);
+        if (action && action.name) {
+            if (action.name === 'first') state.page = 1;
+            if (action.name === 'prev' && state.page > 1) state.page -= 1;
+            if (action.name === 'next' && state.page < state.maxPage) state.page += 1;
+            if (action.name === 'last') state.page = state.maxPage;
+            if (action.name === 'page') state.page = Number(action.value);
         }
 
-        if (pamyat.page > maksimalnayaStranica) {
-            pamyat.page = maksimalnayaStranica || 1;
-        }
+        return {
+            page: state.page,
+            limit: limit
+        };
+    };
 
-        const nishniyIndeks = (pamyat.page - 1) * skolkoPokazivat;
-        const verhniyIndeks = nishniyIndeks + skolkoPokazivat;
+    const updatePagination = (total, state) => {
+        const limit = Number(state.rowsPerPage) || 10;
+        const maxPage = Math.ceil(total / limit) || 1;
+        state.maxPage = maxPage;
 
-        
-        if (elementiUpravleniya.fromRow) elementiUpravleniya.fromRow.textContent = vsegoStrok === 0 ? 0 : nishniyIndeks + 1;
-        if (elementiUpravleniya.toRow) elementiUpravleniya.toRow.textContent = Math.min(verhniyIndeks, vsegoStrok);
-        if (elementiUpravleniya.totalRows) elementiUpravleniya.totalRows.textContent = vsegoStrok;
+        if (state.page > maxPage) state.page = maxPage;
 
-        
-        if (elementiUpravleniya.pages) {
-            const container = elementiUpravleniya.pages;
+        const from = (state.page - 1) * limit + 1;
+        const to = Math.min(state.page * limit, total);
+
+        if (elements.fromRow) elements.fromRow.textContent = total === 0 ? 0 : from;
+        if (elements.toRow) elements.toRow.textContent = to;
+        if (elements.totalRows) elements.totalRows.textContent = total;
+
+        if (elements.pages) {
+            const container = elements.pages;
             container.innerHTML = ''; 
-            
-            const pagesArray = getPages(pamyat.page, maksimalnayaStranica, 5); 
+            const pagesArray = getPages(state.page, maxPage, 5); 
             
             pagesArray.forEach(pageNum => {
                 const label = document.createElement('label');
                 label.className = 'pagination-button';
-                if (pageNum === pamyat.page) label.classList.add('active'); 
+                if (pageNum === state.page) label.classList.add('active'); 
                 
                 const input = document.createElement('input');
                 input.type = 'radio';
                 input.name = 'page';
                 input.value = pageNum;
-                if (pageNum === pamyat.page) input.checked = true;
+                input.style.display = 'none'; 
+                if (pageNum === state.page) input.checked = true;
                 
                 const span = document.createElement('span');
                 span.textContent = pageNum;
@@ -55,7 +58,7 @@ export function initPagination(elementiUpravleniya) {
                 container.appendChild(label);
             });
         }
+    };
 
-        return otseyannieDannie.slice(nishniyIndeks, verhniyIndeks);
-    }
+    return { applyPagination, updatePagination };
 }
