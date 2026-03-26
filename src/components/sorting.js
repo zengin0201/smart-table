@@ -2,12 +2,11 @@ export function initSorting(columns) {
     return (query, state, action) => {
         if (action && action.name === 'sort') {
             const clickedColumn = action.dataset.field;
-
             if (state.sort === clickedColumn) {
-                state.order = state.order === "asc" ? "desc" : "asc";
+                state.order = state.order === "up" ? "down" : "up";
             } else {
                 state.sort = clickedColumn;
-                state.order = "asc";
+                state.order = "up";
             }
 
             Object.keys(columns).forEach(columnName => {
