@@ -3,6 +3,9 @@
 A modular, framework-agnostic data management system designed to handle large-scale datasets with professional-grade features: multi-criteria filtering, dynamic sorting, and optimized pagination.
 
 
+## 📸 Preview
+<img width="2095" height="1247" alt="image" src="https://github.com/user-attachments/assets/831638d9-d43a-458b-8788-4db97a65742a" />
+
 
 ## 🚀 Key Engineering Features
 
