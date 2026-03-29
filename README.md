@@ -1,46 +1,73 @@
-# 📊 DataFlow Engine: High-Performance Vanilla JS Data Table
+# 📊 SmartTable — Vanilla JS Data Management System
 
-A modular, framework-agnostic data management system designed to handle large-scale datasets with professional-grade features: multi-criteria filtering, dynamic sorting, and optimized pagination.
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Glossary/HTML5)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
-
-## 📸 Preview
-<img width="2095" height="1247" alt="image" src="https://github.com/user-attachments/assets/831638d9-d43a-458b-8788-4db97a65742a" />
-
-
-## 🚀 Key Engineering Features
-
-* **Modular Architecture:** The system is built on a "Plug-and-Play" logic. Sorting (`sort.js`), Comparison (`compare.js`), and UI logic are decoupled, making the codebase highly maintainable and scalable.
-* **High-Volume Data Processing:** Optimized to handle thousands of records by implementing efficient filtering and search algorithms that minimize memory overhead.
-* **State-Driven Rendering:** Features a centralized `render` cycle that synchronizes the UI with the application state (Search + Filter + Sort + Pagination) in a predictable, unidirectional flow.
-* **Declarative Template System:** Uses HTML5 `<template>` tags and a custom `cloneTemplate` utility to dynamically generate the UI, keeping the DOM structure clean and readable.
-* **Custom Comparison Engine:** Built a flexible rule-based comparison module (`compare.js`) that uses closures to create reusable validation logic for complex data types.
-
-## 🛠️ Tech Stack & Patterns
-
-* **Language:** Vanilla JavaScript (ES6+).
-* **Concepts:** Functional Programming (Immutability), Closures, Higher-Order Functions.
-* **Data Handling:** Array methods optimization (`filter`, `reduce`, `toSorted`).
-* **UI/UX:** CSS Custom Properties, Responsive Table Layouts, BEM-like styling.
-
-## 🧠 Technical Deep Dive
-
-### 🏗️ Modular State Management
-Instead of messy global variables, the app uses a `memoryState` object and a `collectState` function to gather inputs from the UI via `FormData`. This approach mimics modern state-management libraries but with zero dependencies.
-
-### ⚡ Performance-First Sorting
-The sorting logic (`sort.js`) utilizes the modern `toSorted()` method to ensure **data immutability**. This prevents side effects and allows for easy "reset to original" functionality.
-
-### 🔍 Scalable Filtering
-The filtering system supports:
-* Global text search.
-* Dynamic range/category filtering.
-* Smart pagination that adjusts "Showing X to Y of Z entries" labels in real-time.
-
-## 🚀 How to Run
-
-1. Clone the repo.
-2. Open `index.html` via a Local Server (e.g., Live Server in VS Code).
-3. The app will automatically initialize with the provided datasets from `data.js`.
+A high-performance, modular data table application built with **Pure JavaScript**. This project focuses on efficient DOM manipulation using HTML Templates and a robust state-driven rendering engine.
 
 ---
-*Developed as a deep-dive into JavaScript systems architecture and performance optimization.*
+
+## 📸 Preview
+<img width="1663" height="1245" alt="image" src="https://github.com/user-attachments/assets/e3756059-532a-4225-8809-7ce667634658" />
+
+
+
+## 🚀 Key Features
+
+* **⚡ Reactive Rendering**: Data-driven UI updates using a custom `render` loop.
+* **🔍 Multi-layer Filtering**: Combined searching, dropdown filtering, and sorting that syncs perfectly with the API.
+* **📑 Advanced Pagination**: Dynamic page calculation with "First/Last" navigation and configurable rows-per-page.
+* **🏗 Modular Architecture**: Separate logic for sorting, searching, and filtering, making the codebase easy to scale.
+* **💾 Template System**: High-performance row rendering using `<template>` tags to avoid unnecessary DOM thrashing.
+* **🌐 REST API Integration**: Asynchronous data fetching with `Promise.all` for index synchronization (Sellers/Customers).
+
+---
+
+## 🛠 Tech Stack & Patterns
+
+* **Architecture**: Functional Modular Pattern (init-based components).
+* **Data Handling**: `async/await` with `URLSearchParams` for complex query building.
+* **DOM API**: Extensive use of `cloneTemplate`, `FormData`, and Event Delegation.
+* **State Management**: Centralized `memoryState` object to track UI changes across different components.
+
+---
+
+## 📁 Project Structure Deep Dive
+
+* **`main.js`**: The Orchestrator. Manages the lifecycle of the app and coordinates between the API and UI components.
+* **`data.js`**: Data Layer. Handles API requests, record mapping, and caching of indexes (Sellers/Customers).
+* **`table.js`**: The UI Engine. Responsibly clones templates and manages "before/after" component slots.
+* **`filtering.js` / `sorting.js` / `pagination.js`**: Independent logic modules that transform the state into API-ready queries.
+
+---
+
+## ⚙️ How It Works
+
+The app uses a **"Pipeline Pattern"** for data fetching:
+1.  **Collect**: Grabs raw data from the `FormData`.
+2.  **Transform**: Passes the state through "Apply" functions (`applySearching`, `applyFiltering`, etc.).
+3.  **Fetch**: Requests data from the server using the generated query string.
+4.  **Render**: Updates the DOM efficiently using predefined HTML templates.
+
+---
+
+## 🔧 Installation
+
+1.  **Clone the repository**
+    ```bash
+    git clone [https://github.com/your-username/smart-table.git](https://github.com/your-username/smart-table.git)
+    ```
+2.  **Run with Live Server**
+    Since this project uses ES Modules, you need to run it through a local server (e.g., VS Code Live Server extension).
+
+---
+
+## 👨‍💻 Technical Skills Demonstrated
+* Working with complex asynchronous flows.
+* Deep understanding of the DOM and browser events.
+* Writing clean, reusable, and decoupled JavaScript modules.
+* Implementing UX patterns (pagination, sorting) from scratch without libraries.
+
+---
+*Created with focus on performance and architectural clarity.*
