@@ -56,7 +56,7 @@ The app uses a **"Pipeline Pattern"** for data fetching:
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/your-username/smart-table.git](https://github.com/your-username/smart-table.git)
+    git clone [https://github.com/zengin0201/smart-table.git](https://github.com/zengin0201/smart-table.git)
     ```
 2.  **Run with Live Server**
     Since this project uses ES Modules, you need to run it through a local server (e.g., VS Code Live Server extension).
